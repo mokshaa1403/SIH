@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Evidence-first multimodal satellite image analysis prototype">
+  <title>SatQuery ISRO Lite</title>
+  <link rel="stylesheet" href="/styles.css?v=0.5.0">
+  <link rel="stylesheet" href="/comparison.css?v=0.5.1">
+  <style>
+    .advantages{padding-top:90px}.advantage-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+    .advantage-grid article{background:var(--white);padding:25px;min-height:150px}.advantage-grid h3{font-family:Georgia,serif;font-size:20px;font-weight:500;margin:0 0 10px}
+    .advantage-grid p,.model-summary{font-size:13px;line-height:1.55;color:var(--muted)}.model-summary{margin:14px 0 0}
+    @media(max-width:900px){.advantage-grid{grid-template-columns:1fr 1fr}}@media(max-width:560px){.advantage-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="SatQuery home">
+      <span class="brand-mark">SQ</span>
+      <span>SatQuery <small>ISRO Lite</small></span>
+    </a>
+    <div class="status"><span class="status-dot"></span><span id="service-status">Checking local model</span></div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">MULTIMODAL EARTH INTELLIGENCE</p>
+        <h1>Ask the image.<br><span>Inspect the evidence.</span></h1>
+        <p class="lede">A lightweight prototype that routes satellite questions to specialist analysis workflows and shows how each answer was produced.</p>
+      </div>
+      <div class="hero-orbit" aria-hidden="true"><span></span><i></i></div>
+    </section>
+
+    <section class="workspace">
+      <form id="query-form" class="control-panel">
+        <div class="section-heading"><span>01</span><div><h2>Configure analysis</h2><p>Choose the input relationship before uploading.</p></div></div>
+        <label for="mode">Input mode</label>
+        <select id="mode" name="mode">
+          <option value="single_optical">Single image — auto-detect RGB / normal</option>
+          <option value="single_sar">Single SAR image</option>
+          <option value="temporal_pair">Before / after pair</option>
+          <option value="optical_sar_pair">Optical / SAR pair</option>
+        </select>
+
+        <label>Satellite imagery</label>
+        <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Select satellite images">
+          <input id="files" type="file" accept="image/png,image/jpeg" multiple hidden>
+          <div class="upload-icon">↥</div>
+          <strong>Drop imagery here</strong>
+          <span id="file-hint">PNG or JPEG · one image required</span>
+        </div>
+        <div id="file-list" class="file-list"></div>
+
+        <label for="question">Question</label>
+        <textarea id="question" rows="3" placeholder="Try: Highlight the water body" required></textarea>
+        <div class="suggestions">
+          <button type="button" data-query="Highlight the water body">Find water</button>
+          <button type="button" data-query="What changed between these dates?" data-mode="temporal_pair">Detect change</button>
+          <button type="button" data-query="What is visible in this image?">Describe scene</button>
+          <button type="button" data-query="Highlight the red pixels">Find red</button>
+        </div>
+        <button id="analyze" class="primary" type="submit"><span>Run analysis</span><b>→</b></button>
+        <p class="disclaimer">Prototype output is not suitable for operational decisions without expert validation.</p>
+      </form>
+
+      <section class="result-panel" aria-live="polite">
+        <div id="empty-state" class="empty-state">
+          <div class="scan-grid"></div>
+          <h2>Evidence will appear here</h2>
+          <p>Upload imagery and ask a supported question to inspect the selected workflow, visual overlay and confidence factors.</p>
+        </div>
+        <div id="loading" class="loading hidden"><div class="radar"><span></span></div><h2>Analysing imagery</h2><p>Validating input and selecting a specialist workflow…</p></div>
+        <div id="result" class="hidden">
+          <div class="result-head">
+            <div><p class="eyebrow">ANALYSIS RESULT</p><h2 id="task-name">Result</h2></div>
+            <div id="confidence-badge" class="confidence">—</div>
+          </div>
+          <div class="comparison-heading"><h3>Visual comparison</h3><p>Compare the uploaded image with the model's highlighted evidence.</p></div>
+          <div id="evidence-comparison" class="evidence-comparison">
+            <figure id="original-figure" class="comparison-item"><figcaption>Original image</figcaption><img id="original-image" alt="Original uploaded satellite image"></figure>
+            <figure id="second-original-figure" class="comparison-item hidden"><figcaption id="second-original-label">Second input</figcaption><img id="second-original-image" alt="Second uploaded satellite image"></figure>
+            <figure class="comparison-item"><figcaption>Highlighted result</figcaption><div class="evidence-frame"><img id="evidence" alt="Analysis evidence overlay"><div id="no-evidence">This workflow returned structured evidence without an overlay.</div></div></figure>
+          </div>
+          <article class="answer"><h3>Finding</h3><p id="answer-text"></p></article>
+          <div class="result-grid">
+            <article><h3>Measurements</h3><div id="metrics"></div></article>
+            <article><h3>Execution trace</h3><ol id="trace"></ol></article>
+          </div>
+          <article id="warnings-box" class="warnings"><h3>Validation notes</h3><ul id="warnings"></ul></article>
+        </div>
+        <div id="error" class="error hidden"><strong>Analysis could not run</strong><p id="error-text"></p></div>
+      </section>
+    </section>
+
+    <section class="capabilities">
+      <div class="section-heading"><span>02</span><div><h2>Specialist workflows</h2><p>One controller, four replaceable analysis modules.</p></div></div>
+      <div class="capability-list">
+        <article><b>VQA</b><h3>Scene understanding</h3><p>Answers controlled questions about visible land-cover evidence.</p></article>
+        <article><b>GRD</b><h3>Visual grounding</h3><p>Highlights water, vegetation, built-up and bare-land regions.</p></article>
+        <article><b>CHG</b><h3>Temporal change</h3><p>Creates an explainable difference mask from aligned image pairs.</p></article>
+        <article><b>FUS</b><h3>Optical–SAR fusion</h3><p>Combines complementary optical and radar signals with explicit weights.</p></article>
+      </div>
+    </section>
+
+    <section class="advantages">
+      <div class="section-heading"><span>03</span><div><h2>Designed around documented gaps</h2><p>A small local system that complements Bhuvan, Bhoonidhi and VEDAS.</p></div></div>
+      <div class="advantage-grid">
+        <article><h3>Question first</h3><p>The user asks a supported question. The router chooses the workflow and records why.</p></article>
+        <article><h3>Evidence required</h3><p>Grounding and change tasks return a pixel mask instead of an unsupported text-only claim.</p></article>
+        <article><h3>Local by default</h3><p>Uploaded images remain on this server. No commercial catalogue or external inference API is required.</p></article>
+        <article><h3>Open input</h3><p>Ordinary PNG and JPEG images work now. Geospatial adapters can later add governed ISRO products.</p></article>
+        <article><h3>Failure visible</h3><p>Confidence factors, warnings and refusal behavior expose weak or unsupported cases.</p></article>
+        <article><h3>Replaceable models</h3><p>The registry separates routing, scene classification, grounding, change and sensor fusion.</p></article>
+      </div>
+      <p id="model-summary" class="model-summary">Loading model card…</p>
+    </section>
+  </main>
+  <footer><span>SatQuery ISRO Lite · Local evidence prototype</span><span>v0.5.2</span></footer>
+  <script src="/app.js?v=0.5.2" defer></script>
+</body>
+</html>

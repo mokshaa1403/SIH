@@ -1,0 +1,17 @@
+{
+  "version": "1.0",
+  "seed": 26167,
+  "training_images": 296,
+  "reserved_test_images": 3348,
+  "training_pixels": 925635,
+  "water_pixel_fraction": 0.44,
+  "train_by_source": {
+    "landcover_agriculture": 20,
+    "landcover_barren": 20,
+    "landcover_forest": 20,
+    "landcover_rangeland": 20,
+    "landcover_urban": 20,
+    "landcover_water": 16,
+    "water_bodies": 180
+  }
+}

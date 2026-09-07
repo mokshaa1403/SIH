@@ -1,0 +1,34 @@
+{
+  "version": "0.5.0",
+  "deployment": {
+    "default": "local",
+    "external_api_required": false,
+    "open_image_inputs": ["PNG", "JPEG"],
+    "audit_trace": true,
+    "low_confidence_warning": true,
+    "unsupported_query_refusal": true
+  },
+  "models": {
+    "vqa": {
+      "implementation": "spectral-rule-plus-local-scene-knn-baseline",
+      "accepted_modes": ["single_optical", "single_sar"],
+      "outputs": ["answer", "class_fractions", "confidence"]
+    },
+    "grounding": {
+      "implementation": "supervised-water-segmenter-with-rgb-composite-fallback",
+      "accepted_modes": ["single_optical"],
+      "targets": ["water", "vegetation", "built_up", "bare_land", "red_region", "green_region", "blue_region"],
+      "outputs": ["mask", "coverage", "confidence"]
+    },
+    "change_detection": {
+      "implementation": "aligned-difference-baseline",
+      "accepted_modes": ["temporal_pair"],
+      "outputs": ["change_mask", "changed_area", "confidence"]
+    },
+    "optical_sar_fusion": {
+      "implementation": "late-score-fusion-baseline",
+      "accepted_modes": ["optical_sar_pair"],
+      "outputs": ["class_map", "modality_contribution", "confidence"]
+    }
+  }
+}
