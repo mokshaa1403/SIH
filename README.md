@@ -1,4 +1,4 @@
-# SatQuery ISRO Lite
+# SatQuery 
 
 SatQuery ISRO Lite is a runnable, evidence-first prototype for natural-language analysis of satellite imagery. It routes a question to one of four specialist workflows and returns an answer, visual evidence, confidence factors, and an execution trace.
 
